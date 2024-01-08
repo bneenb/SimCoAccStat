@@ -1,3 +1,42 @@
+let globalCsvData = null; // Global variable to store the CSV data
+
+function handleFileSelect(evt) {
+    const file = evt.target.files[0];
+    Papa.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        complete: function(results) {
+            globalCsvData = results.data; // Store CSV data globally
+            showProfitParser(); // Default to showing 'Profit' parser
+        }
+    });
+}
+
+function showProfitParser() {
+    if (globalCsvData) {
+        // Call the function that handles the 'Profit' parser
+        displayResults(processData(globalCsvData));
+    } else {
+        alert("Please upload a CSV file first.");
+    }
+}
+
+function showTBDParser1() {
+    console.log("TBD Parser 1 functionality goes here.");
+}
+
+function showTBDParser2() {
+    console.log("TBD Parser 2 functionality goes here.");
+}
+
+function showTBDParser3() {
+    console.log("TBD Parser 3 functionality goes here.");
+}
+
+function showTBDParser4() {
+    console.log("TBD Parser 4 functionality goes here.");
+}
+
 function handleFileSelect(evt) {
     const file = evt.target.files[0];
     Papa.parse(file, {
@@ -30,7 +69,8 @@ function processData(data) {
                 let rowDate = new Date(row['Timestamp']).toISOString().split('T')[0];
 
                 if (rowDate === date) {
-                    let category = row['Category'];
+                    let description = row['Description'];
+                    let category = extractCategory(description);
                     let details = JSON.parse(row['Details']);
                     let profitString = details && details.profit ? details.profit : "$0";
                     let profit = parseFloat(profitString.replace(/[^0-9.-]+/g,""));
@@ -50,8 +90,18 @@ function processData(data) {
         });
     });
 
-    // console.log("Sums: ", sums); // Debugging line to check sums
+    //console.log("Sums: ", sums); // Debugging line to check sums
     return { profitsByCategoryAndDate, dates, sums };
+}
+
+// Function to extract the category from the description
+function extractCategory(description) {
+    if (description.includes('contract')) {
+        return description.split(' contract')[0];
+    } else if (description.includes('market')) {
+        return description.split(' market')[0];
+    }
+    return 'Other'; // Default category if no match
 }
 
 function displayResults(resultData) {
@@ -64,7 +114,7 @@ function displayResults(resultData) {
     let { profitsByCategoryAndDate, dates, sums } = resultData;
 
     // Create and add the header row
-    let headerRow = '<tr><th>Category</th>';
+    let headerRow = '<tr><th>Profit from</th>';
     dates.forEach(date => {
         headerRow += `<th>${date}</th>`;
     });
@@ -98,4 +148,3 @@ function displayResults(resultData) {
     sumRow += `</tr>`;
     tableBody.innerHTML += sumRow;
 }
-

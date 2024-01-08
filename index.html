@@ -7,7 +7,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Upload your CSV File</h1>
+    <div class="menu-bar">
+        <button onclick="showProfitParser()">Profit</button>
+        <button onclick="showTBDParser1()">TBD 1</button>
+        <button onclick="showTBDParser2()">TBD 2</button>
+        <button onclick="showTBDParser3()">TBD 3</button>
+        <button onclick="showTBDParser4()">TBD 4</button>
+    </div>
+    <h4>Upload your "cash receipts and disembursements" CSV File here</h4>
     <input type="file" id="csvFileInput" accept=".csv" onchange="handleFileSelect(event)">
     <br><br>
     <div id="output">

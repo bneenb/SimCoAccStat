@@ -49,3 +49,15 @@ input[type="file"] {
     font-weight: bold;
     border-top: 3px solid #333; /* Thicker line above the 'Sum' row */
 }
+
+.menu-bar {
+    background-color: #f2f2f2;
+    padding: 10px;
+    text-align: center;
+}
+
+.menu-bar button {
+    margin: 5px;
+    padding: 10px;
+    cursor: pointer;
+}
