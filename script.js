@@ -100,6 +100,8 @@ function extractCategory(description) {
         return description.split(' contract')[0];
     } else if (description.includes('market')) {
         return description.split(' market')[0];
+    } else if (description.includes('Sales order fulfilled')) {
+        return 'Sales Orders';
     }
     return 'Other'; // Default category if no match
 }
