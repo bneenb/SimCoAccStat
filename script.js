@@ -72,11 +72,11 @@ function processData(data) {
                     let description = row['Description'];
                     let category = extractCategory(description);
                     let details = JSON.parse(row['Details']);
-                    let profitString = details && details.profit ? details.profit : "$0";
+                    let profitString = details && details.profit ? String(details.profit) : "$0";
                     let profit = parseFloat(profitString.replace(/[^0-9.-]+/g, ""));
 
                     // Check for both 'amount' and 'quantity' and use whichever is available
-                    let quantity = details && (details.amount || details.quantity) ? details.amount || details.quantity : 1;
+                    let quantity = details && (details.amount || details.quantity) ? details.amount || details.quantity : 0;
 
                     if (!profitsByCategoryAndDate[category]) {
                         profitsByCategoryAndDate[category] = {};
