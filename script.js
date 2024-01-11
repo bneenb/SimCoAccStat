@@ -73,19 +73,21 @@ function processData(data) {
                     let category = extractCategory(description);
                     let details = JSON.parse(row['Details']);
                     let profitString = details && details.profit ? details.profit : "$0";
-                    let profit = parseFloat(profitString.replace(/[^0-9.-]+/g,""));
-                    let quantity = details && details.quantity ? details.quantity : 1; // Default to 1 if not available
-                    let profitPerPiece = quantity > 0 ? profit / quantity : 0;
+                    let profit = parseFloat(profitString.replace(/[^0-9.-]+/g, ""));
+
+                    // Check for both 'amount' and 'quantity' and use whichever is available
+                    let quantity = details && (details.amount || details.quantity) ? details.amount || details.quantity : 1;
 
                     if (!profitsByCategoryAndDate[category]) {
                         profitsByCategoryAndDate[category] = {};
                     }
                     if (!profitsByCategoryAndDate[category][date]) {
-                        profitsByCategoryAndDate[category][date] = { totalProfit: 0, profitPerPiece: 0 };
+                        profitsByCategoryAndDate[category][date] = { totalProfit: 0, totalQuantity: 0 };
                     }
                     profitsByCategoryAndDate[category][date].totalProfit += profit;
-                    profitsByCategoryAndDate[category][date].profitPerPiece = profitPerPiece;
-                    sums[date] += profit; // Accumulate profit in sums
+                    profitsByCategoryAndDate[category][date].totalQuantity += quantity;
+
+                    sums[date] += profit; // Accumulate total profit in sums
                 }
             } catch (e) {
                 console.error(`Error parsing data for row:`, row, `Error:`, e);
@@ -93,8 +95,17 @@ function processData(data) {
         });
     });
 
+    // Calculate average profit per piece for each category and date
+    for (let category in profitsByCategoryAndDate) {
+        for (let date in profitsByCategoryAndDate[category]) {
+            let data = profitsByCategoryAndDate[category][date];
+            data.profitPerPiece = data.totalQuantity > 0 ? data.totalProfit / data.totalQuantity : 0;
+        }
+    }
+
     return { profitsByCategoryAndDate, dates, sums };
 }
+
 
 // Function to extract the category from the description
 function extractCategory(description) {
