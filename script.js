@@ -74,14 +74,17 @@ function processData(data) {
                     let details = JSON.parse(row['Details']);
                     let profitString = details && details.profit ? details.profit : "$0";
                     let profit = parseFloat(profitString.replace(/[^0-9.-]+/g,""));
+                    let quantity = details && details.quantity ? details.quantity : 1; // Default to 1 if not available
+                    let profitPerPiece = quantity > 0 ? profit / quantity : 0;
 
                     if (!profitsByCategoryAndDate[category]) {
                         profitsByCategoryAndDate[category] = {};
                     }
                     if (!profitsByCategoryAndDate[category][date]) {
-                        profitsByCategoryAndDate[category][date] = 0;
+                        profitsByCategoryAndDate[category][date] = { totalProfit: 0, profitPerPiece: 0 };
                     }
-                    profitsByCategoryAndDate[category][date] += profit;
+                    profitsByCategoryAndDate[category][date].totalProfit += profit;
+                    profitsByCategoryAndDate[category][date].profitPerPiece = profitPerPiece;
                     sums[date] += profit; // Accumulate profit in sums
                 }
             } catch (e) {
@@ -90,7 +93,6 @@ function processData(data) {
         });
     });
 
-    //console.log("Sums: ", sums); // Debugging line to check sums
     return { profitsByCategoryAndDate, dates, sums };
 }
 
@@ -125,18 +127,24 @@ function displayResults(resultData) {
 
     // Process data rows
     Object.keys(profitsByCategoryAndDate).forEach(category => {
-        let totalProfit = 0; // Track total profit for the category
         let row = `<tr><td>${category}</td>`;
+        let totalCategoryProfit = 0; // Track total profit for the category across all dates
+
         dates.forEach(date => {
-            let profit = profitsByCategoryAndDate[category][date] ? profitsByCategoryAndDate[category][date] : 0;
-            totalProfit += profit;
-            let formattedProfit = profit.toLocaleString(); // Format number with commas
-            let className = profit >= 0 ? 'positive' : 'negative';
-            row += `<td class="${className}">$${formattedProfit}</td>`;
+            let profitData = profitsByCategoryAndDate[category][date];
+            let totalProfit = profitData ? profitData.totalProfit : 0;
+            totalCategoryProfit += totalProfit; // Accumulate total profit for the category
+
+            let formattedProfit = totalProfit.toLocaleString();
+            let profitPerPieceFormatted = profitData ? profitData.profitPerPiece.toLocaleString() : "0";
+            let className = totalProfit >= 0 ? 'positive' : 'negative';
+
+            row += `<td class="${className}">$${formattedProfit}<br><span style='font-size: smaller;'>$${profitPerPieceFormatted} per piece</span></td>`;
         });
-        row += `</tr>`;
-        if (totalProfit !== 0) {
-            tableBody.innerHTML += row; // Only add the row if the total profit is not zero
+
+        // Only add the row if the total category profit is not zero
+        if (totalCategoryProfit !== 0) {
+            tableBody.innerHTML += row + `</tr>`;
         }
     });
 
@@ -150,3 +158,4 @@ function displayResults(resultData) {
     sumRow += `</tr>`;
     tableBody.innerHTML += sumRow;
 }
+
