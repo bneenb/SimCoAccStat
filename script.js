@@ -115,11 +115,13 @@ function processData(data) {
 // Function to extract the category from the description
 function extractCategory(description) {
     if (description.includes('contract')) {
-        return description.split(' contract')[0];
+        return description.split(' contract')[0].replace('Bought ','').replace(' on','');
     } else if (description.includes('market')) {
-        return description.split(' market')[0];
+        return description.split(' market')[0].replace('Bought ','').replace(' on','');
     } else if (description.includes('Sales order fulfilled')) {
         return 'Sales Orders';
+    } else if (description.includes('Production')){
+        return 'Wages';
     }
     return 'Other'; // Default category if no match
 }
